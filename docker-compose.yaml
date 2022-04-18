@@ -1,0 +1,66 @@
+version: '3' 
+
+services:
+  mysql_db:
+    container_name: mysql_wordpress
+    image: mysql:5.7
+    restart: always
+    environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: proyecto_db
+       MYSQL_USER: vicfer
+       MYSQL_PASSWORD: root
+    volumes:
+      - mysql:/var/lib/mysql
+    networks:
+      wordpress_bridge_network:
+        ipv4_address: 172.10.0.3
+
+  wordpress:
+    depends_on:
+      - mysql_db
+    container_name: wordpress
+    image: wordpress:latest
+    restart: always
+    ports:
+      - "8000:80"
+    environment: 
+      WORDPRESS_DB_HOST: mysql_db:3306
+      WORDPRESS_DB_USER: vicfer
+      WORDPRESS_DB_PASSWORD: root
+      WORDPRESS_DB_NAME: proyecto_db
+    volumes:
+      - "./:/var/www/html"
+    networks:
+      wordpress_bridge_network:
+        ipv4_address: 172.10.0.4
+
+  phpmyadmin:
+    depends_on:
+      - mysql_db
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - 3333:80
+    environment:
+      PMA_HOST: mysql_db
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - "./:/var/www/html/phpmyadmin"
+    networks:
+      wordpress_bridge_network:
+        ipv4_address: 172.10.0.5
+
+
+volumes:
+  mysql: {}
+
+networks:
+  wordpress_bridge_network:
+    name: 'wordpress_network'
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.10.0.0/24
+          gateway: 172.10.0.2
