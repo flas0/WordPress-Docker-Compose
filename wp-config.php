@@ -131,3 +131,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /** Sets up WordPress vars and included files. */
 require_once ABSPATH . 'wp-settings.php';
+/** Permite instalar plugins sin necesitar el usuario FTP*/
+define("FS_METHOD","direct");
